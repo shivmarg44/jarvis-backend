@@ -7,27 +7,34 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "YOUR_API_KEY_HERE");
+// Root route (Browser check ke liye)
+app.get('/', (req, res) => {
+    res.send("JARVIS Core Server Online & Operational!");
+});
 
+const apiKey = process.env.GEMINI_API_KEY || "YOUR_API_KEY";
+const genAI = new GoogleGenerativeAI(apiKey);
+
+// Main Jarvis API endpoint
 app.post('/api/jarvis', async (req, res) => {
     try {
         const { prompt } = req.body;
         if (!prompt) {
-            return res.status(400).json({ reply: "Prompt parameter missing, sir." });
+            return res.status(400).json({ reply: "Prompt missing, sir." });
         }
 
         const model = genAI.getGenerativeModel({
             model: "gemini-1.5-flash",
-            systemInstruction: "You are JARVIS, an advanced AI inspired by Tony Stark's assistant. Keep answers brief, witty, sharp, respectful, and optimized for voice speech."
+            systemInstruction: "You are JARVIS, Tony Stark's personal AI assistant. Keep responses brief, witty, sharp, respectful, and voice-ready."
         });
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const replyText = response.text() || "System could not generate a response, sir.";
+        const text = response.text();
 
-        return res.json({ reply: replyText });
+        return res.json({ reply: text });
     } catch (error) {
-        console.error("Jarvis Backend Error:", error);
+        console.error("Jarvis Error:", error);
         return res.status(500).json({ reply: "Core link communication failure, sir." });
     }
 });
