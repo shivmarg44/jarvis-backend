@@ -1,21 +1,17 @@
 const express = require('express');
 const cors = require('cors');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Root route (Browser check ke liye)
 app.get('/', (req, res) => {
     res.send("JARVIS Core Server Online & Operational!");
 });
 
-const apiKey = process.env.GEMINI_API_KEY || "YOUR_API_KEY";
-const genAI = new GoogleGenerativeAI(apiKey);
+const API_KEY = process.env.GEMINI_API_KEY || "YOUR_KEY";
 
-// Main Jarvis API endpoint
 app.post('/api/jarvis', async (req, res) => {
     try {
         const { prompt } = req.body;
@@ -23,18 +19,32 @@ app.post('/api/jarvis', async (req, res) => {
             return res.status(400).json({ reply: "Prompt missing, sir." });
         }
 
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            systemInstruction: "You are JARVIS, Tony Stark's personal AI assistant. Keep responses brief, witty, sharp, respectful, and voice-ready."
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                system_instruction: {
+                    parts: [{ text: "You are JARVIS, Tony Stark's AI assistant. Answer concisely, smartly, and with respectful wit." }]
+                },
+                contents: [{
+                    parts: [{ text: prompt }]
+                }]
+            })
         });
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const data = await response.json();
 
-        return res.json({ reply: text });
+        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+            const aiText = data.candidates[0].content.parts[0].text;
+            return res.json({ reply: aiText });
+        } else {
+            console.error("Gemini Error Payload:", JSON.stringify(data));
+            return res.status(500).json({ reply: data.error?.message || "Brain processing error, sir." });
+        }
     } catch (error) {
-        console.error("Jarvis Error:", error);
+        console.error("Jarvis Server Error:", error);
         return res.status(500).json({ reply: "Core link communication failure, sir." });
     }
 });
