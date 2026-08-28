@@ -16,7 +16,7 @@ app.post('/api/jarvis', async (req, res) => {
     try {
         const { prompt } = req.body;
         if (!prompt) {
-            return res.status(400).json({ reply: "कुछ कहिए सर।" });
+            return res.json({ reply: "कुछ कहिए विशाल सर।" });
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${API_KEY}`;
@@ -27,15 +27,9 @@ app.post('/api/jarvis', async (req, res) => {
             body: JSON.stringify({
                 contents: [{
                     parts: [{ 
-                        text: `You are JARVIS, Tony Stark's personal Indian AI assistant. Speak in natural conversational Hindi (Devanagari script). Keep responses punchy, witty, smart, and under 20 words. User: ${prompt}` 
+                        text: `You are JARVIS, personal AI assistant of Vishal sir (your boss and creator). Always address him respectfully as Vishal Sir or Sir. Speak in natural Indian Hindi (Devanagari script). Keep replies witty, smart, polite, and strictly under 20 words. User message: ${prompt}` 
                     }]
-                }],
-                safetySettings: [
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                ]
+                }]
             })
         });
 
@@ -45,12 +39,12 @@ app.post('/api/jarvis', async (req, res) => {
             const aiText = data.candidates[0].content.parts[0].text;
             return res.json({ reply: aiText.trim() });
         } else {
-            console.error("Gemini Error / Blocked:", JSON.stringify(data));
-            return res.json({ reply: "माफ़ कीजिये सर, डेटाबेस रीलोड हो रहा है। एक बार फिर पूछें।" });
+            console.error("Gemini Error / Quota:", JSON.stringify(data));
+            return res.json({ reply: "माफ़ कीजिये विशाल सर, न्यूरल लिंक में थोड़ा लैग है। एक बार फिर कहें।" });
         }
     } catch (error) {
         console.error("Server Link Error:", error);
-        return res.json({ reply: "सिस्टम कनेक्शन धीमा है सर, दुबारा कोशिश करें।" });
+        return res.json({ reply: "विशाल सर, नेटवर्क थोड़ा धीमा है।" });
     }
 });
 
