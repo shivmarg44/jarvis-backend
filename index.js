@@ -12,25 +12,6 @@ app.get('/', (req, res) => {
     res.send("JARVIS Core Server Online & Operational!");
 });
 
-// Browser quick test
-app.get('/test-ask', async (req, res) => {
-    try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${API_KEY}`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: "Say hello in JARVIS style" }] }]
-            })
-        });
-        const data = await response.json();
-        res.json(data);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// Main App API
 app.post('/api/jarvis', async (req, res) => {
     try {
         const { prompt } = req.body;
@@ -44,8 +25,19 @@ app.post('/api/jarvis', async (req, res) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                system_instruction: {
+                    parts: [{ 
+                        text: "You are JARVIS, an ultra-smart AI assistant. Always speak natural Indian Hindi/Hinglish (like: 'Haan sir, bataiye kya madad karun', 'Bilkul sir, systems active hain'). Keep replies short, witty, sharp, under 25 words, and strictly conversational for voice synthesis." 
+                    }]
+                },
+                generationConfig: {
+                    temperature: 0.7,
+                    thinking_config: {
+                        thinking_budget: 0 // Thinking band karne se instant 1 second me reply aayega
+                    }
+                },
                 contents: [{
-                    parts: [{ text: `You are JARVIS, Tony Stark's personal AI assistant. Reply briefly, sharply, respectfully, and voice-ready: ${prompt}` }]
+                    parts: [{ text: prompt }]
                 }]
             })
         });
@@ -56,12 +48,10 @@ app.post('/api/jarvis', async (req, res) => {
             const aiText = data.candidates[0].content.parts[0].text;
             return res.json({ reply: aiText });
         } else {
-            console.error("Gemini API Error:", JSON.stringify(data));
-            return res.status(500).json({ reply: data.error?.message || "Brain processing error, sir." });
+            return res.status(500).json({ reply: "Core memory error, sir." });
         }
     } catch (error) {
-        console.error("Server Error:", error);
-        return res.status(500).json({ reply: "Core link communication failure, sir." });
+        return res.status(500).json({ reply: "Connection slow hai, sir." });
     }
 });
 
