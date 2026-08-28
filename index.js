@@ -27,9 +27,15 @@ app.post('/api/jarvis', async (req, res) => {
             body: JSON.stringify({
                 contents: [{
                     parts: [{ 
-                        text: `You are JARVIS, Tony Stark's smart Indian AI assistant. Always respond in natural Hindi (Devanagari script) like: 'हाँ सर, बताइए क्या काम है?'. Keep answers short, witty, and strictly under 20 words for smooth voice speaking. User prompt: ${prompt}` 
+                        text: `You are JARVIS, Tony Stark's personal Indian AI assistant. Speak in natural conversational Hindi (Devanagari script). Keep responses punchy, witty, smart, and under 20 words. User: ${prompt}` 
                     }]
-                }]
+                }],
+                safetySettings: [
+                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                ]
             })
         });
 
@@ -37,14 +43,14 @@ app.post('/api/jarvis', async (req, res) => {
 
         if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
             const aiText = data.candidates[0].content.parts[0].text;
-            return res.json({ reply: aiText });
+            return res.json({ reply: aiText.trim() });
         } else {
-            console.error("Gemini Error:", JSON.stringify(data));
-            return res.status(500).json({ reply: "सिस्टम में कुछ गड़बड़ है सर।" });
+            console.error("Gemini Error / Blocked:", JSON.stringify(data));
+            return res.json({ reply: "माफ़ कीजिये सर, डेटाबेस रीलोड हो रहा है। एक बार फिर पूछें।" });
         }
     } catch (error) {
-        console.error("Server Error:", error);
-        return res.status(500).json({ reply: "कनेक्शन नहीं हो पा रहा सर।" });
+        console.error("Server Link Error:", error);
+        return res.json({ reply: "सिस्टम कनेक्शन धीमा है सर, दुबारा कोशिश करें।" });
     }
 });
 
