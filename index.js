@@ -25,18 +25,10 @@ app.post('/api/jarvis', async (req, res) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ 
-                        text: "You are JARVIS, Tony Stark's smart Indian AI assistant. Always respond in pure Hindi (Devanagari script) like: 'नमस्ते सर, बताइए क्या काम है?' or 'बिल्कुल सर, सब तैयार है।' Keep answers short, smart, witty, and strictly under 20 words so voice engine speaks naturally." 
-                    }]
-                },
-                generationConfig: {
-                    thinking_config: {
-                        thinking_budget: 0
-                    }
-                },
                 contents: [{
-                    parts: [{ text: prompt }]
+                    parts: [{ 
+                        text: `You are JARVIS, Tony Stark's smart Indian AI assistant. Always respond in natural Hindi (Devanagari script) like: 'हाँ सर, बताइए क्या काम है?'. Keep answers short, witty, and strictly under 20 words for smooth voice speaking. User prompt: ${prompt}` 
+                    }]
                 }]
             })
         });
@@ -47,9 +39,11 @@ app.post('/api/jarvis', async (req, res) => {
             const aiText = data.candidates[0].content.parts[0].text;
             return res.json({ reply: aiText });
         } else {
+            console.error("Gemini Error:", JSON.stringify(data));
             return res.status(500).json({ reply: "सिस्टम में कुछ गड़बड़ है सर।" });
         }
     } catch (error) {
+        console.error("Server Error:", error);
         return res.status(500).json({ reply: "कनेक्शन नहीं हो पा रहा सर।" });
     }
 });
