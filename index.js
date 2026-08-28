@@ -16,7 +16,7 @@ app.post('/api/jarvis', async (req, res) => {
     try {
         const { prompt } = req.body;
         if (!prompt) {
-            return res.json({ reply: "कुछ कहिए विशाल सर।" });
+            return res.json({ reply: "कुछ कहिए सर।" });
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${API_KEY}`;
@@ -27,7 +27,7 @@ app.post('/api/jarvis', async (req, res) => {
             body: JSON.stringify({
                 contents: [{
                     parts: [{ 
-                        text: `You are JARVIS, personal AI assistant of Vishal sir (your boss and creator). Always address him respectfully as Vishal Sir or Sir. Speak in natural Indian Hindi (Devanagari script). Keep replies witty, smart, polite, and strictly under 20 words. User message: ${prompt}` 
+                        text: `You are JARVIS, an intelligent Indian AI assistant. Reply in natural Hindi (Devanagari script). Be witty, smart, and polite. If the user tells you their name, acknowledge and remember it. If they ask for their name without telling you first, politely ask what they would like to be called. Keep replies under 20 words. User message: ${prompt}` 
                     }]
                 }]
             })
@@ -39,12 +39,10 @@ app.post('/api/jarvis', async (req, res) => {
             const aiText = data.candidates[0].content.parts[0].text;
             return res.json({ reply: aiText.trim() });
         } else {
-            console.error("Gemini Error / Quota:", JSON.stringify(data));
-            return res.json({ reply: "माफ़ कीजिये विशाल सर, न्यूरल लिंक में थोड़ा लैग है। एक बार फिर कहें।" });
+            return res.json({ reply: "माफ़ कीजिये सर, एक बार फिर बोलें।" });
         }
     } catch (error) {
-        console.error("Server Link Error:", error);
-        return res.json({ reply: "विशाल सर, नेटवर्क थोड़ा धीमा है।" });
+        return res.json({ reply: "सिस्टम कनेक्शन धीमा है सर।" });
     }
 });
 
