@@ -16,7 +16,7 @@ app.post('/api/jarvis', async (req, res) => {
     try {
         const { prompt } = req.body;
         if (!prompt) {
-            return res.status(400).json({ reply: "Prompt missing, sir." });
+            return res.status(400).json({ reply: "कुछ कहिए सर।" });
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${API_KEY}`;
@@ -27,13 +27,12 @@ app.post('/api/jarvis', async (req, res) => {
             body: JSON.stringify({
                 system_instruction: {
                     parts: [{ 
-                        text: "You are JARVIS, an ultra-smart AI assistant. Always speak natural Indian Hindi/Hinglish (like: 'Haan sir, bataiye kya madad karun', 'Bilkul sir, systems active hain'). Keep replies short, witty, sharp, under 25 words, and strictly conversational for voice synthesis." 
+                        text: "You are JARVIS, Tony Stark's smart Indian AI assistant. Always respond in pure Hindi (Devanagari script) like: 'नमस्ते सर, बताइए क्या काम है?' or 'बिल्कुल सर, सब तैयार है।' Keep answers short, smart, witty, and strictly under 20 words so voice engine speaks naturally." 
                     }]
                 },
                 generationConfig: {
-                    temperature: 0.7,
                     thinking_config: {
-                        thinking_budget: 0 // Thinking band karne se instant 1 second me reply aayega
+                        thinking_budget: 0
                     }
                 },
                 contents: [{
@@ -48,10 +47,10 @@ app.post('/api/jarvis', async (req, res) => {
             const aiText = data.candidates[0].content.parts[0].text;
             return res.json({ reply: aiText });
         } else {
-            return res.status(500).json({ reply: "Core memory error, sir." });
+            return res.status(500).json({ reply: "सिस्टम में कुछ गड़बड़ है सर।" });
         }
     } catch (error) {
-        return res.status(500).json({ reply: "Connection slow hai, sir." });
+        return res.status(500).json({ reply: "कनेक्शन नहीं हो पा रहा सर।" });
     }
 });
 
